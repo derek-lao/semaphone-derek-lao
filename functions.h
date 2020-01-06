@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-void readCommand
-void * create(key_t key, size_t size, int );
-void * remove
+void create();
+void remove(int shmid, int semid, int fileDescriptor);
+void view(int fileDescriptor);
+
+void write(int semid, int fileDescriptor);
