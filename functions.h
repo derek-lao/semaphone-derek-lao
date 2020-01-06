@@ -3,5 +3,9 @@
 #include <sys/types.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-void * create(key_t key, sem_t sem, 
+void readCommand
+void * create(key_t key, size_t size, int );
+void * remove
