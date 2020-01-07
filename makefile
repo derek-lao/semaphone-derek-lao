@@ -1,7 +1,5 @@
-write: control.o
+all: control.o write.o
 	gcc -o control control.o
-
-write: write.o
 	gcc -o write write.o
 
 write.o: write.c functions.h

@@ -1,9 +1,9 @@
 #include "functions.h"
 
-void write(int semid, int fileDescriptor)
+void writeStory(int semid, int fileDescriptor)
 {
 	printf("Last addition: ");
-	read(fileDescriptor);
+	readStory(fileDescriptor);
 	semval = semctl(semid, 0, GETVAL); 
 	while(!semval)
 	{//do nothing
