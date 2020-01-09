@@ -15,15 +15,6 @@ int main(int argc, char * argv[])
 	if(!strcmp(argv[1], "-c"))
 	{
 		createStory(shmid, semid, fileDescriptor);
-		char someLine[100] = "things to do";
-		printf("%s\n", someLine);
-		printf("right before write\n");
-		write(*fileDescriptor, someLine, 100);
-		printf("right after write, before creation of story\n");
-		char story[10000];
-		printf("things\n");
-		read(*fileDescriptor, story, 10);
-		write(stdout, story, 10);
 	}
 
 
@@ -32,9 +23,6 @@ int main(int argc, char * argv[])
 
 	if(!strcmp(argv[1], "-r"))
 	removeStory(shmid, semid, fileDescriptor);
-
-	if(!strcmp(argv[1], "-w"))
-	writeStory(semid, fileDescriptor);
 
 	return 0;
 }

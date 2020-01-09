@@ -2,8 +2,6 @@
 
 int main(int argc, char * argv[])
 {
-	int * semid;
-	int * fileDescriptor;
-	writeStory(semid, fileDescriptor);
+	writeStory();
 	return 0;
 }
