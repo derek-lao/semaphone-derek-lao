@@ -1,9 +1,14 @@
 #include "functions.h"
 
+int main()
+{
+	return 0;
+}
+
 void writeStory(int semid, int fileDescriptor)
 {
 	printf("Last addition: ");
-	readStory(fileDescriptor);
+	viewStory(fileDescriptor);
 	int semval = semctl(semid, 0, GETVAL); 
 	while(!semval)
 	{//do nothing
@@ -16,5 +21,5 @@ void writeStory(int semid, int fileDescriptor)
 	write(fileDescriptor, story, 10000);
 	write(stdout, story, 10000);
 	semctl(semid, 0, SETVAL, semval + 1);//up the semaphore
-	//semval++;
+	semval++;
 }

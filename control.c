@@ -1,7 +1,14 @@
 #include "functions.h"
 
+int main()
+{
+	createStory();
+	return 0;
+}
+
 void createStory()
 {
+	printf("story created\n");
 	int shmid;
 	int semid;
 	int fileDescriptor;
@@ -17,11 +24,15 @@ void removeStory(int shmid, int semid, int fileDescriptor)
 	while(!semval)
 	{//do nothing
 	}
+	semctl(semid, 0, SETVAL, semval - 1);//down the semaphore
+	semval--;
 	shmctl(shmid, IPC_RMID, 0);
 	semctl(semid, 0, IPC_RMID);
 	char story[10000];
 	read(fileDescriptor, story, 10000);
 	write(stdout, story, 10000);
+	semctl(semid, 0, SETVAL, semval + 1);//up the semaphore
+	semval++;
 }
 
 void viewStory(int fileDescriptor)
