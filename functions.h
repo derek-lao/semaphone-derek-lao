@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void createStory();
-void removeStory(int shmid, int semid, int fileDescriptor);
-void viewStory(int fileDescriptor);
+void createStory(int * shmid, int * semid, int * fileDescriptor);
+void removeStory(int * shmid, int * semid, int * fileDescriptor);
+void viewStory(int * fileDescriptor);
 
-void writeStory(int semid, int fileDescriptor);
+void writeStory(int * semid, int * fileDescriptor);
