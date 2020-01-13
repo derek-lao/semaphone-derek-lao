@@ -4,7 +4,6 @@ int main(int argc, char * argv[])
 {
 	int * shmid;
 	int * semid;
-	int * fileDescriptor;
 	//printf("this is argv[0]: %s\n", argv[0]);
 	if(!argv[1])
 	{
@@ -14,15 +13,15 @@ int main(int argc, char * argv[])
 
 	if(!strcmp(argv[1], "-c"))
 	{
-		createStory(shmid, semid, fileDescriptor);
+		createStory(shmid, semid);
 	}
 
 
 	if(!strcmp(argv[1], "-v"))
-	viewStory(fileDescriptor);
+	viewStory();
 
 	if(!strcmp(argv[1], "-r"))
-	removeStory(shmid, semid, fileDescriptor);
+	removeStory(shmid, semid);
 
 	return 0;
 }

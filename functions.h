@@ -21,8 +21,8 @@ union semun {
                               (Linux-specific) */
 };
 
-void createStory(int * shmid, int * semid, int * fileDescriptor);
-void removeStory(int * shmid, int * semid, int * fileDescriptor);
-void viewStory(int * fileDescriptor);
+void createStory(int * shmid, int * semid);
+void removeStory(int * shmid, int * semid);
+void viewStory();
 
 void writeStory();
