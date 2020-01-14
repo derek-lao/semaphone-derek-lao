@@ -3,14 +3,20 @@
 void createStory(int * shmid, int * semid)
 {
 	printf("createStory called!\n");
-	* shmid = shmget(SHMKEY, SIZE, IPC_CREAT| IPC_EXCL | 0644);
-	printf("shmid was maybe okay\n");
-	* semid = semget(SEMKEY, 1, IPC_CREAT| IPC_EXCL | 0644);
-	printf("semid was maybe okay\n");
-	if(shmid < 0)
+	* shmid = shmget(SHMKEY, SIZE, IPC_CREAT | 0644);
+	* semid = semget(SEMKEY, 1, IPC_CREAT | IPC_EXCL | 0644);
+	printf("* shmid is: %d\n", *shmid);
+	printf("* semid is: %d\n", *semid);
+	if(* shmid < 0)
 		printf("can't create shared memory\n");
-	if(semid < 0)
+	if(* semid < 0)
+	{
 		printf("can't create semaphore\n");
+		printf("error %d: %s\n", errno, strerror(errno));
+		printf("is there already a semaphore?\n");
+		* semid = semget(SEMKEY, 1, 0);
+		printf("what is semid now: %d\n", *semid);
+	}
 	open("story.txt", O_RDWR | O_CREAT | O_TRUNC , 0666);
 	semctl(* semid, 1, SETVAL);//only one person can access the story at a time
 	printf("file created called \"story.txt\"\n");

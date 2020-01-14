@@ -2,8 +2,8 @@
 
 int main(int argc, char * argv[])
 {
-	int * shmid;
-	int * semid;
+	int shmid;
+	int semid;
 	//printf("this is argv[0]: %s\n", argv[0]);
 	if(!argv[1])
 	{
@@ -13,7 +13,7 @@ int main(int argc, char * argv[])
 
 	if(!strcmp(argv[1], "-c"))
 	{
-		createStory(shmid, semid);
+		createStory(&shmid, &semid);
 	}
 
 
@@ -21,7 +21,7 @@ int main(int argc, char * argv[])
 	viewStory();
 
 	if(!strcmp(argv[1], "-r"))
-	removeStory(shmid, semid);
+	removeStory(&shmid, &semid);
 
 	return 0;
 }
