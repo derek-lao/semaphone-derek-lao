@@ -98,9 +98,13 @@ void viewStory()
 void writeStory()
 {
 	int semid = semget(SEMKEY, 1, 0);
+
+	if(semid < 0)
+	{
+		printf("error %d: %s\n", errno, strerror(errno));
+	}
+
 	int fileDescriptor = open("story.txt", O_WRONLY | O_APPEND);
-	FILE * fileStream = fdopen(fileDescriptor, "w");
-	printf("got up to here?\n");
 	int semval = semctl(semid, 0, GETVAL, 0);
 	printf("semval is %d\n", semval);
 	while(!semval)
@@ -110,8 +114,10 @@ void writeStory()
 	}
 
         if(semval < 0)
+	{
                 printf("error in getting semval\n");
-
+		printf("error %d: %s\n", errno, strerror(errno));
+	}
 	//file is available!
 
 	struct sembuf sb;
@@ -126,11 +132,11 @@ void writeStory()
                 printf("Error\n");
         else
         {
-		fgets(story, 1024, fileStream);
                 printf("Last addition: %s\n", story);
         }
 	printf("semval is %d\n", semval);
 	printf("\nYour addition:");
+
 	fgets(story, SIZE, stdin);
 	write(fileDescriptor, story, SIZE);
 	close(fileDescriptor);
