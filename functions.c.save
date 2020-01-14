@@ -82,16 +82,15 @@ void removeStory(int * shmid, int * semid)
 void viewStory()
 {
         int fileDescriptor = open("story.txt", O_RDONLY, 0666);
-	//FILE * fileStream = fdopen(fileDescriptor, "r");
+	FILE * fileStream = fdopen(fileDescriptor, "r");
         char story[10000];
         if(fileDescriptor < 0)
 	{
                 printf("error, no file found?\n");
 		printf("error %d: %s\n", errno, strerror(errno));
 	}
-	//fgets(story, 10000, fileStream);
-	read(fileDescriptor, story, 10000);
-	printf("The story so far:\n%s\n", story);
+	fgets(story, 10000, fileStream);
+	printf("The story so far:\n %s\n", story);
 }
 
 void writeStory()
@@ -136,8 +135,9 @@ void writeStory()
 	printf("semval is %d\n", semval);
 	printf("\nYour addition:");
 	fgets(story, SIZE, stdin);
-	int length = strlen(story);
-	write(fileDescriptor, story, length);
+	printf("sizeof *story is %d\n", sizeof(*story));
+	write(fileDescriptor, story, SIZE);
+
 	close(fileDescriptor);
 	shmdt(story);
 	sb.sem_op = 1;
