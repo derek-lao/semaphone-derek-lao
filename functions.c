@@ -3,31 +3,56 @@
 void createStory(int * shmid, int * semid)
 {
 	printf("createStory called!\n");
-	* shmid = shmget(SHMKEY, SIZE, IPC_CREAT | 0644);
+	* shmid = shmget(SHMKEY, SIZE, IPC_CREAT | IPC_EXCL | 0644);
 	* semid = semget(SEMKEY, 1, IPC_CREAT | IPC_EXCL | 0644);
 	printf("* shmid is: %d\n", *shmid);
 	printf("* semid is: %d\n", *semid);
+	printf("\n");
+	int semidExistedBefore = 0;
 	if(* shmid < 0)
-		printf("can't create shared memory\n");
+	{
+		printf("can't create shared memory, likely because a segment already exists\n");
+		printf("error %d: %s\n", errno, strerror(errno));
+		* shmid = shmget(SHMKEY, SIZE, 0644);
+		printf("getting existing shmid: %d\n", *shmid);
+		printf("\n");
+	}
 	if(* semid < 0)
 	{
-		printf("can't create semaphore\n");
+		printf("can't create semaphore (likely cause: semaphore already exists)\n");
 		printf("error %d: %s\n", errno, strerror(errno));
-		printf("is there already a semaphore?\n");
-		* semid = semget(SEMKEY, 1, 0);
-		printf("what is semid now: %d\n", *semid);
+		* semid = semget(SEMKEY, 1, 0644);
+		printf("getting existing semid: %d\n", *semid);
+		printf("\n");
+		if(* semid >= 0)
+			semidExistedBefore = 1;
 	}
-	open("story.txt", O_RDWR | O_CREAT | O_TRUNC , 0666);
+	int fileDescriptor = open("story.txt", O_RDWR | O_CREAT | O_EXCL | O_TRUNC , 0666);
 	semctl(* semid, 1, SETVAL);//only one person can access the story at a time
 	printf("file created called \"story.txt\"\n");
 
-	struct sembuf sb;
-        sb.sem_num = 0;
-        sb.sem_op = 1;
-        semop(* semid, &sb, 1);
+	if(fileDescriptor < 1)
+	{
+		printf("error, likely cause is that the file already exists");
+		printf("error %d: %s\n", errno, strerror(errno));
+		printf("\n");
+	}
 
-	int semval = semctl(*semid, 0, GETVAL, 0);
-	printf("semaphore upped to have a value of %d\n", semval);
+	if(!semidExistedBefore)
+	{
+		struct sembuf sb;
+	        sb.sem_num = 0;
+ 	        sb.sem_op = 1;
+	        semop(* semid, &sb, 1);
+	        int semval = semctl(*semid, 0, GETVAL, 0);
+        	printf("semaphore upped to have a value of %d\n", semval);
+	}
+	else
+	{
+		printf("semaphore existed before, was not changed\n");
+	}
+	printf("\n");
+	printf("If you had tried to create a new game but errors came up saying that a game already exists, please call\n\"./control -r\" to remove everything, and then call\n\"./control -c\" again\n");
 }
 
 void removeStory(int * shmid, int * semid)
