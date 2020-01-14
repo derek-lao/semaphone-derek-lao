@@ -40,7 +40,6 @@ void removeStory(int * shmid, int * semid)
 		printf("error in getting semval\n");
    		printf("error %d: %s\n", errno, strerror(errno));
 	}
-	printf("got up to here\n");
 	printf("semval is %d\n", semval);
 	while(!semval)
         {//do nothing
@@ -59,11 +58,12 @@ void removeStory(int * shmid, int * semid)
 		printf("error %d: %s\n", errno, strerror(errno));
 		printf("error, no file found?\n");
 	}
+
+	viewStory();
 	shmctl(*shmid, IPC_RMID, 0);
 	printf("shared memory removed\n");
 	semctl(*semid, 0, IPC_RMID);
 	printf("semaphore removed\n");
-	viewStory();
 
 	if(fileDescriptor >= 0)
 	{
