@@ -20,30 +20,45 @@ void createStory(int * shmid, int * semid)
 	open("story.txt", O_RDWR | O_CREAT | O_TRUNC , 0666);
 	semctl(* semid, 1, SETVAL);//only one person can access the story at a time
 	printf("file created called \"story.txt\"\n");
+
+	struct sembuf sb;
+        sb.sem_num = 0;
+        sb.sem_op = 1;
+        semop(* semid, &sb, 1);
+
+	int semval = semctl(*semid, 0, GETVAL, 0);
+	printf("semaphore upped to have a value of %d\n", semval);
 }
 
 void removeStory(int * shmid, int * semid)
 {
-	int semval = shmctl(*shmid, GETVAL, 0);
-	while(semval >= 0)
-	{//do nothing
-		printf("can not be removed yet, file is being used\n");
-		semval = semctl(*semid, 0, GETVAL);
-	}
-
+	*shmid = shmget(SHMKEY, SIZE, 0644);
+	*semid = semget(SEMKEY, 1, 0);
+	int semval = semctl(*semid, 0,  GETVAL, 0);
 	if(semval < 0)
+	{
 		printf("error in getting semval\n");
+   		printf("error %d: %s\n", errno, strerror(errno));
+	}
+	printf("got up to here\n");
+	printf("semval is %d\n", semval);
+	while(!semval)
+        {//do nothing
+                printf("can not be removed yet, file is being used\n");
+                semval = semctl(*semid, 0, GETVAL);
+        }
+	struct sembuf sb;
+        sb.sem_num = 0;
+        sb.sem_op = -1;
+        semop(*semid, &sb, 1);
 
 	int fileDescriptor = open("story.txt", O_RDWR | O_TRUNC , 0666); 
 
 	if(fileDescriptor < 0)
+	{
+		printf("error %d: %s\n", errno, strerror(errno));
 		printf("error, no file found?\n");
-
-	struct sembuf sb;
-	sb.sem_num = 0;
-	sb.sem_op = -1;
-	semop(*semid, &sb, 1);
-
+	}
 	shmctl(*shmid, IPC_RMID, 0);
 	printf("shared memory removed\n");
 	semctl(*semid, 0, IPC_RMID);
@@ -51,11 +66,15 @@ void removeStory(int * shmid, int * semid)
 	viewStory();
 
 	if(fileDescriptor >= 0)
-	{	close(fileDescriptor);
+	{
+		close(fileDescriptor);
 		printf("file closed, but not removed yet\n");
 	}
 	if(remove("story.txt"))
+	{
 		printf("error, can't remove file\n");
+		printf("error %d: %s\n", errno, strerror(errno));
+	}
 	else
 		printf("file removed\n");
 }
@@ -68,8 +87,10 @@ void viewStory()
         char * story = shmat(shmid, 0, 0);
 
         if(fileDescriptor < 0)
+	{
                 printf("error, no file found?\n");
-
+		printf("error %d: %s\n", errno, strerror(errno));
+	}
 	fgets(story, 1024, fileStream);
 	printf("The story so far:\n %s\n", story);
 }
@@ -80,12 +101,12 @@ void writeStory()
 	int fileDescriptor = open("story.txt", O_WRONLY | O_APPEND);
 	FILE * fileStream = fdopen(fileDescriptor, "w");
 	printf("got up to here?\n");
-	int semval = semctl(semid, 0, GETVAL);
+	int semval = semctl(semid, 0, GETVAL, 0);
 	printf("semval is %d\n", semval);
-	while(semval >= 0)
+	while(!semval)
 	{
 		printf("Waiting for file to be available...\n");
-		semval = semctl(semid, 0, GETVAL);
+		semval = semctl(semid, 0, GETVAL, 0);
 	}
 
         if(semval < 0)

@@ -1,4 +1,4 @@
-all: control.o write.o
+all: control.o write.o functions.o
 	gcc -o control functions.o control.o
 	gcc -o write functions.o write.o
 
