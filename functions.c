@@ -50,6 +50,12 @@ void createStory(int * shmid, int * semid)
 	else
 	{
 		printf("semaphore existed before, was not changed\n");
+		struct sembuf sb;
+                sb.sem_num = 0;
+                sb.sem_op = 1;
+                semop(* semid, &sb, 1);
+		int semval = semctl(*semid, 0, GETVAL, 0);
+                printf("semaphore has a value of %d\n", semval);
 	}
 	printf("\n");
 	printf("If you had tried to create a new game but errors came up saying that a game already exists, please call\n\"./control -r\" to remove everything, and then call\n\"./control -c\" again\n");
@@ -66,15 +72,12 @@ void removeStory(int * shmid, int * semid)
    		printf("error %d: %s\n", errno, strerror(errno));
 	}
 	printf("semval is %d\n", semval);
-	while(!semval)
-        {//do nothing
-                printf("can not be removed yet, file is being used\n");
-                semval = semctl(*semid, 0, GETVAL);
-        }
+	printf("trying to get in...");
 	struct sembuf sb;
         sb.sem_num = 0;
         sb.sem_op = -1;
         semop(*semid, &sb, 1);
+	printf("successfully got in!\n");
 
 	int fileDescriptor = open("story.txt", O_RDWR | O_TRUNC , 0666); 
 
@@ -131,11 +134,11 @@ void writeStory()
 	int fileDescriptor = open("story.txt", O_WRONLY | O_APPEND);
 	int semval = semctl(semid, 0, GETVAL, 0);
 	printf("semval is %d\n", semval);
-	while(!semval)
-	{
-		printf("Waiting for file to be available...\n");
-		semval = semctl(semid, 0, GETVAL, 0);
-	}
+	//while(!semval)
+	//{
+	//	printf("Waiting for file to be available...\n");
+	//	semval = semctl(semid, 0, GETVAL, 0);
+	//}
 
         if(semval < 0)
 	{
@@ -144,10 +147,13 @@ void writeStory()
 	}
 	//file is available!
 
+	printf("trying to get in...\n");
 	struct sembuf sb;
         sb.sem_num = 0;
         sb.sem_op = -1;
         semop(semid, &sb, 1);
+	printf("successfully got in!\n");
+
 
 	int shmid = shmget(SHMKEY, SIZE, 0);
 	char * story = shmat(shmid, 0, 0);
