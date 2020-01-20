@@ -28,7 +28,6 @@ void createStory(int * shmid, int * semid)
 			semidExistedBefore = 1;
 	}
 	int fileDescriptor = open("story.txt", O_RDWR | O_CREAT | O_EXCL | O_TRUNC , 0666);
-	semctl(* semid, 1, SETVAL);//only one person can access the story at a time
 	printf("file created called \"story.txt\"\n");
 
 	if(fileDescriptor < 1)
@@ -51,7 +50,15 @@ void createStory(int * shmid, int * semid)
 	{
 		printf("semaphore existed before, was not changed\n");
 		int semval = semctl(*semid, 0, GETVAL, 0);
-                printf("semaphore has a value of %d\n", semval);
+		//if(semval < 1)
+		//{
+		//	struct sembuf sb;
+		//	sb.sem_num = 0;
+		//	sb.sem_op = 1;
+		//	semop(* semid, &sb, 1);
+                //}
+		//semval = semctl(*semid, 0, GETVAL, 0);
+		printf("semaphore has a value of %d\n", semval);
 	}
 	printf("\n");
 	printf("If you had tried to create a new game but errors came up saying that a game already exists, please call\n\"./control -r\" to remove everything, and then call\n\"./control -c\" again\n");
