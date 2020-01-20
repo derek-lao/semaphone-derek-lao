@@ -50,10 +50,6 @@ void createStory(int * shmid, int * semid)
 	else
 	{
 		printf("semaphore existed before, was not changed\n");
-		struct sembuf sb;
-                sb.sem_num = 0;
-                sb.sem_op = 1;
-                semop(* semid, &sb, 1);
 		int semval = semctl(*semid, 0, GETVAL, 0);
                 printf("semaphore has a value of %d\n", semval);
 	}
